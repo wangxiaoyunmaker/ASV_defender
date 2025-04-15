@@ -19,7 +19,7 @@ export default function SpeakerPage() {
     { id: '0001', audioUrl: '/reference_1.wav', model: 'ASV1' },
   ]);
 
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<number | 'new' | null>(null);
   const [editValue, setEditValue] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -29,18 +29,24 @@ export default function SpeakerPage() {
   const chunksRef = useRef<Blob[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleEdit = (id: string, currentValue: string) => {
-    setEditingId(id);
+  const handleEdit = (index: number | 'new', currentValue: string) => {
+    setEditingId(index);
     setEditValue(currentValue);
   };
 
-  const handleSave = (index: number) => {
-    if (editingId) {
-      const newSpeakers = [...speakers];
-      newSpeakers[index] = { ...newSpeakers[index], id: editValue };
-      setSpeakers(newSpeakers);
-      setEditingId(null);
-      setEditValue('');
+  const handleSave = (index: number | 'new') => {
+    if (editingId === index) {
+      if (index === 'new') {
+        // 处理新建说话人的情况
+        setEditingId(null);
+        setEditValue('');
+      } else {
+        const newSpeakers = [...speakers];
+        newSpeakers[index] = { ...newSpeakers[index], id: editValue };
+        setSpeakers(newSpeakers);
+        setEditingId(null);
+        setEditValue('');
+      }
     }
   };
 
@@ -111,13 +117,13 @@ export default function SpeakerPage() {
   };
 
   return (
-    <div className="max-w-[1200px] mx-auto py-8 px-4">
+    <div className="max-w-[1200px] mx-auto py-24 px-6">
       {/* 标题和新建按钮 */}
-      <div className="flex items-center mb-8">
-        <h1 className="text-2xl text-[#28264D] font-bold">已有说话人</h1>
+      <div className="flex items-center mb-12">
+        <h1 className="text-[30px] text-[#655DE6] font-bold ml-24">已有说话人</h1>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="ml-4 flex items-center justify-center gap-[5px] px-1.5 py-1 bg-gradient-to-r from-[#B224EF] to-[#7579FF] rounded-[32px] text-white hover:opacity-90 transition-opacity"
+          className="ml-6 flex items-center justify-center gap-[5px] px-4 py-1 bg-gradient-to-r from-[#B224EF] to-[#7579FF] rounded-[32px] text-white hover:opacity-90 transition-opacity"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -130,10 +136,10 @@ export default function SpeakerPage() {
       <div className="border-t border-b border-gray-200 overflow-hidden">
         {/* 列表头部 */}
         <div className="grid grid-cols-4 text-[#28264D] bg-gray-50 border-b border-gray-200">
-          <div className="px-4 py-3 text-center font-medium">说话人id</div>
-          <div className="px-4 py-3 text-center font-medium">音频</div>
-          <div className="px-4 py-3 text-center font-medium">说话人识别模型</div>
-          <div className="px-4 py-3 text-center font-medium">管理</div>
+          <div className="px-6 py-4 text-center font-medium">说话人id</div>
+          <div className="px-6 py-4 text-center font-medium">音频</div>
+          <div className="px-6 py-4 text-center font-medium">说话人识别模型</div>
+          <div className="px-6 py-4 text-center font-medium">管理</div>
         </div>
 
         {/* 列表内容 */}
@@ -145,8 +151,8 @@ export default function SpeakerPage() {
                 index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
               }`}
             >
-              <div className="px-4 py-3 flex items-center justify-center gap-2">
-                {editingId === speaker.id ? (
+              <div className="px-6 py-4 flex items-center justify-center gap-2">
+                {editingId === index ? (
                   <input
                     type="text"
                     value={editValue}
@@ -163,7 +169,10 @@ export default function SpeakerPage() {
                 ) : (
                   <>
                     <span className="text-[#28264D]">{speaker.id}</span>
-                    <button onClick={() => handleEdit(speaker.id, speaker.id)}>
+                    <button 
+                      onClick={() => handleEdit(index, speaker.id)}
+                      className="p-1 hover:bg-[#F5F7FF] rounded-full transition-colors"
+                    >
                       <svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3.66602 28C3.66602 27.7348 3.77137 27.4804 3.95891 27.2929C4.14645 27.1054 4.4008 27 4.66602 27H28.666C28.9312 27 29.1856 27.1054 29.3731 27.2929C29.5607 27.4804 29.666 27.7348 29.666 28C29.666 28.2652 29.5607 28.5196 29.3731 28.7071C29.1856 28.8946 28.9312 29 28.666 29H4.66602C4.4008 29 4.14645 28.8946 3.95891 28.7071C3.77137 28.5196 3.66602 28.2652 3.66602 28ZM21.13 3C21.2616 3.00003 21.3918 3.02601 21.5133 3.07646C21.6348 3.12691 21.7451 3.20084 21.838 3.294L26.708 8.166C26.8955 8.35353 27.0008 8.60784 27.0008 8.873C27.0008 9.13816 26.8955 9.39247 26.708 9.58L12.918 23.374C12.7306 23.5609 12.4767 23.6659 12.212 23.666H7.33202C7.0668 23.666 6.81245 23.5606 6.62491 23.3731C6.43737 23.1856 6.33202 22.9312 6.33202 22.666V17.814C6.33204 17.6824 6.35803 17.5522 6.40848 17.4307C6.45893 17.3092 6.53285 17.1989 6.62602 17.106L20.422 3.294C20.5149 3.20084 20.6252 3.12691 20.7467 3.07646C20.8682 3.02601 20.9985 3.00003 21.13 3ZM21.13 5.414L8.33402 18.228V21.668H11.798L24.586 8.872L21.13 5.414Z" fill="#9391B1"/>
                       </svg>
@@ -171,11 +180,11 @@ export default function SpeakerPage() {
                   </>
                 )}
               </div>
-              <div className="px-4 py-3 flex justify-center">
+              <div className="px-6 py-4 flex justify-center">
                 <audio src={speaker.audioUrl} controls className="h-8 w-[250px]" />
               </div>
-              <div className="px-4 py-3 text-center text-[#28264D]">{speaker.model}</div>
-              <div className="px-4 py-3 flex justify-center">
+              <div className="px-6 py-4 text-center text-[#28264D]">{speaker.model}</div>
+              <div className="px-6 py-4 flex justify-center">
                 <button 
                   onClick={() => handleDelete(index)}
                   className="px-4 py-1 bg-[#655DE6] text-white rounded-lg hover:bg-[#7B74E8] transition-colors"
@@ -245,7 +254,7 @@ export default function SpeakerPage() {
             </div>
 
             {/* 上传区域 */}
-            <div className="grid grid-cols-2 gap-8 mb-8">
+            <div className="grid grid-cols-2 gap-12 mb-8">
               {!audioUrl ? (
                 <>
                   {/* 文件上传 */}
