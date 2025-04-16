@@ -7,14 +7,26 @@ import AudioInput from './AudioInput';
 interface AttackModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onAttackAudioSelected?: (audioUrl: string, attackInfo: {
+    isAdaptive: boolean;
+    attackType: string;
+    targetSpeaker: string;
+    asvModel: string;
+  }) => void;
 }
 
-export default function AttackModal({ isOpen, onClose }: AttackModalProps) {
+export default function AttackModal({ isOpen, onClose, onAttackAudioSelected }: AttackModalProps) {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [shouldReset, setShouldReset] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [buttonText, setButtonText] = useState('攻击音频生成');
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+  const [attackInfo, setAttackInfo] = useState({
+    isAdaptive: false,
+    attackType: 'fgsm',
+    targetSpeaker: 'speaker1',
+    asvModel: '1d_cnn'
+  });
 
   const handleReset = () => {
     setShouldReset(true);
@@ -29,6 +41,9 @@ export default function AttackModal({ isOpen, onClose }: AttackModalProps) {
       setShowResult(true);
       setButtonText('使用该攻击音频');
     } else if (buttonText === '使用该攻击音频') {
+      if (audioUrl && onAttackAudioSelected) {
+        onAttackAudioSelected(audioUrl, attackInfo);
+      }
       onClose();
     }
   };
@@ -36,6 +51,15 @@ export default function AttackModal({ isOpen, onClose }: AttackModalProps) {
   const handleAudioUrlChange = (url: string | null) => {
     setAudioUrl(url);
     setIsButtonDisabled(!url);
+  };
+
+  const handleAttackInfoChange = (info: {
+    isAdaptive: boolean;
+    attackType: string;
+    targetSpeaker: string;
+    asvModel: string;
+  }) => {
+    setAttackInfo(info);
   };
 
   if (!isOpen) return null;
@@ -133,8 +157,13 @@ export default function AttackModal({ isOpen, onClose }: AttackModalProps) {
                   {/* 频谱图对比模块 */}
                   <div className="w-full mt-4">
                     <h2 className="text-[28.8px] font-bold text-[#655DE6] mb-4">频谱图对比</h2>
-                    <div className="w-full h-[200px] bg-gray-100 rounded-lg flex items-center justify-center">
-                      <span className="text-gray-400">频谱图将在这里显示</span>
+                    <div className="w-full h-[180px] bg-white rounded-lg flex items-center overflow-hidden">
+                      <img 
+                        src="/images/spectrum.png" 
+                        alt="频谱图对比" 
+                        className="w-full h-full object-contain object-left"
+                        style={{maxHeight: '100%', maxWidth: '100%'}}
+                      />
                     </div>
                   </div>
                 </div>
@@ -150,6 +179,7 @@ export default function AttackModal({ isOpen, onClose }: AttackModalProps) {
               onGenerate={handleGenerate}
               buttonText={buttonText}
               isButtonDisabled={isButtonDisabled}
+              onAttackInfoChange={handleAttackInfoChange}
             />
           </div>
         </div>

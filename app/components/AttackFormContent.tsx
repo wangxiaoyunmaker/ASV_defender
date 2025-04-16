@@ -1,25 +1,44 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface AttackFormContentProps {
   showGenerateButton?: boolean;
   onGenerate?: () => void;
   buttonText?: string;
   isButtonDisabled?: boolean;
+  onAttackInfoChange?: (info: {
+    isAdaptive: boolean;
+    attackType: string;
+    targetSpeaker: string;
+    asvModel: string;
+  }) => void;
 }
 
 export default function AttackFormContent({ 
   showGenerateButton = true, 
   onGenerate,
   buttonText = '攻击音频生成',
-  isButtonDisabled = false
+  isButtonDisabled = false,
+  onAttackInfoChange
 }: AttackFormContentProps) {
   const [hasTarget, setHasTarget] = useState(false);
   const [isAdaptive, setIsAdaptive] = useState(false);
-  const [attackType, setAttackType] = useState('type1');
+  const [attackType, setAttackType] = useState('fgsm');
   const [targetSpeaker, setTargetSpeaker] = useState('speaker1');
-  const [asvModel, setAsvModel] = useState('model1');
+  const [asvModel, setAsvModel] = useState('1d_cnn');
+
+  // 当攻击信息变化时通知父组件
+  useEffect(() => {
+    if (onAttackInfoChange) {
+      onAttackInfoChange({
+        isAdaptive,
+        attackType,
+        targetSpeaker,
+        asvModel
+      });
+    }
+  }, [isAdaptive, attackType, targetSpeaker, asvModel, onAttackInfoChange]);
 
   return (
     <div className="flex flex-col gap-[30px] w-[470.4px] h-[349.4px]">
@@ -89,9 +108,13 @@ export default function AttackFormContent({
             onChange={(e) => setAttackType(e.target.value)}
             className="absolute inset-0 border-[1.6px] border-[#DADADA] rounded-[6.4px] px-[18.4px] text-[19.2px] text-[#785DEF] font-['Microsoft_YaHei'] leading-[25px] focus:outline-none focus:ring-2 focus:ring-[#785DEF] focus:ring-opacity-50 appearance-none"
           >
-            <option value="type1">L2</option>
-            <option value="type2">类型2</option>
-            <option value="type3">类型3</option>
+            <option value="fgsm">FGSM−l∞</option>
+            <option value="pgd">PGD−l∞</option>
+            <option value="cw_l2">CW−l2</option>
+            <option value="cw_linf">CW−l∞</option>
+            <option value="deepfool">DeepFool−l2</option>
+            <option value="fakebob">FAKEBOB</option>
+            <option value="kenansville">Kenansville</option>
           </select>
           <div className="absolute right-[18.4px] top-[15.2px] w-[13.6px] h-[17.6px] pointer-events-none">
             <svg width="13.6" height="17.6" viewBox="0 0 13.6 17.6" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -109,9 +132,9 @@ export default function AttackFormContent({
             onChange={(e) => setTargetSpeaker(e.target.value)}
             className="absolute inset-0 border-[1.6px] border-[#DADADA] rounded-[6.4px] px-[17.6px] text-[19.2px] text-[#785DEF] font-['Microsoft_YaHei'] leading-[25px] focus:outline-none focus:ring-2 focus:ring-[#785DEF] focus:ring-opacity-50 appearance-none"
           >
-            <option value="speaker1">Speaker_A</option>
-            <option value="speaker2">说话人2</option>
-            <option value="speaker3">说话人3</option>
+            <option value="speaker_a">Speaker_A</option>
+            <option value="speaker_b">Speaker_B</option>
+            <option value="speaker_c">Speaker_C</option>
           </select>
           <div className="absolute right-[17.6px] top-[15.2px] w-[13.6px] h-[17.6px] pointer-events-none">
             <svg width="13.6" height="17.6" viewBox="0 0 13.6 17.6" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -129,9 +152,9 @@ export default function AttackFormContent({
             onChange={(e) => setAsvModel(e.target.value)}
             className="absolute inset-0 border-[1.6px] border-[#DADADA] rounded-[6.4px] px-[18.4px] text-[19.2px] text-[#785DEF] font-['Microsoft_YaHei'] leading-[25px] focus:outline-none focus:ring-2 focus:ring-[#785DEF] focus:ring-opacity-50 appearance-none"
           >
-            <option value="model1">3D-Speaker</option>
-            <option value="model2">模型2</option>
-            <option value="model3">模型3</option>
+            <option value="1d_cnn">1D-CNN</option>
+            <option value="ecapa_tdnn">ECAPA-TDNN</option>
+            <option value="xvector_plda">x-Vector+PLDA</option>
           </select>
           <div className="absolute right-[18.4px] top-[15.2px] w-[13.6px] h-[17.6px] pointer-events-none">
             <svg width="13.6" height="17.6" viewBox="0 0 13.6 17.6" fill="none" xmlns="http://www.w3.org/2000/svg">

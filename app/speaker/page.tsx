@@ -5,18 +5,17 @@ import { useState, useRef } from 'react';
 interface Speaker {
   id: string;
   audioUrl: string;
-  model: string;
 }
 
 export default function SpeakerPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [speakers, setSpeakers] = useState<Speaker[]>([
-    { id: '0001', audioUrl: '/reference_1.wav', model: 'ASV1' },
-    { id: '0001', audioUrl: '/reference_1.wav', model: 'ASV1' },
-    { id: '0001', audioUrl: '/reference_1.wav', model: 'ASV1' },
-    { id: '0001', audioUrl: '/reference_1.wav', model: 'ASV1' },
-    { id: '0001', audioUrl: '/reference_1.wav', model: 'ASV1' },
-    { id: '0001', audioUrl: '/reference_1.wav', model: 'ASV1' },
+    { id: '0001', audioUrl: '/reference_1.wav' },
+    { id: '0001', audioUrl: '/reference_1.wav' },
+    { id: '0001', audioUrl: '/reference_1.wav' },
+    { id: '0001', audioUrl: '/reference_1.wav' },
+    { id: '0001', audioUrl: '/reference_1.wav' },
+    { id: '0001', audioUrl: '/reference_1.wav' },
   ]);
 
   const [editingId, setEditingId] = useState<number | 'new' | null>(null);
@@ -24,7 +23,6 @@ export default function SpeakerPage() {
   const [isRecording, setIsRecording] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [selectedModel, setSelectedModel] = useState('ASV1');
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -53,7 +51,7 @@ export default function SpeakerPage() {
   const handleNewSpeaker = () => {
     if (audioUrl) {
       const newId = `000${speakers.length + 1}`;
-      setSpeakers([...speakers, { id: newId, audioUrl, model: selectedModel }]);
+      setSpeakers([...speakers, { id: newId, audioUrl }]);
       setAudioUrl(null);
       setIsModalOpen(false);
     }
@@ -117,7 +115,7 @@ export default function SpeakerPage() {
   };
 
   return (
-    <div className="max-w-[1200px] mx-auto py-24 px-6">
+    <div className="max-w-[1000px] mx-auto py-24 px-6">
       {/* 标题和新建按钮 */}
       <div className="flex items-center mb-12">
         <h1 className="text-[30px] text-[#655DE6] font-bold ml-24">已有说话人</h1>
@@ -135,10 +133,9 @@ export default function SpeakerPage() {
       {/* 列表 */}
       <div className="border-t border-b border-gray-200 overflow-hidden">
         {/* 列表头部 */}
-        <div className="grid grid-cols-4 text-[#28264D] bg-gray-50 border-b border-gray-200">
+        <div className="grid grid-cols-3 text-[#28264D] bg-gray-50 border-b border-gray-200">
           <div className="px-6 py-4 text-center font-medium">说话人id</div>
           <div className="px-6 py-4 text-center font-medium">音频</div>
-          <div className="px-6 py-4 text-center font-medium">说话人识别模型</div>
           <div className="px-6 py-4 text-center font-medium">管理</div>
         </div>
 
@@ -147,7 +144,7 @@ export default function SpeakerPage() {
           {speakers.map((speaker, index) => (
             <div 
               key={index} 
-              className={`grid grid-cols-4 items-center transition-colors duration-200 hover:bg-[#F5F7FF] ${
+              className={`grid grid-cols-3 items-center transition-colors duration-200 hover:bg-[#F5F7FF] ${
                 index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
               }`}
             >
@@ -183,7 +180,6 @@ export default function SpeakerPage() {
               <div className="px-6 py-4 flex justify-center">
                 <audio src={speaker.audioUrl} controls className="h-8 w-[250px]" />
               </div>
-              <div className="px-6 py-4 text-center text-[#28264D]">{speaker.model}</div>
               <div className="px-6 py-4 flex justify-center">
                 <button 
                   onClick={() => handleDelete(index)}
@@ -239,18 +235,6 @@ export default function SpeakerPage() {
               </div>
               <p className="text-[19px] text-[#28264D]">音频最大长度：30s</p>
               <p className="text-[19px] text-[#28264D] mt-4">支持的语言：中文、英文</p>
-              <div className="mt-4">
-                <label className="text-[19px] text-[#28264D]">说话人识别模型：</label>
-                <select
-                  value={selectedModel}
-                  onChange={(e) => setSelectedModel(e.target.value)}
-                  className="ml-4 bg-[#F5F7FF] text-[#655DE6] px-3 py-1 rounded border border-[#655DE6] focus:outline-none focus:ring-2 focus:ring-[#655DE6] focus:ring-opacity-50"
-                >
-                  <option value="ASV1">ASV1</option>
-                  <option value="ASV2">ASV2</option>
-                  <option value="ASV3">ASV3</option>
-                </select>
-              </div>
             </div>
 
             {/* 上传区域 */}
